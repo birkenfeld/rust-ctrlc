@@ -23,12 +23,12 @@ mod features {
     }
 }
 use self::features::*;
+use std::os::raw::c_int;
 
 #[cfg(unix)]
 mod platform {
     use libc::c_int;
     use libc::types::os::common::posix01::sighandler_t;
-    use libc::consts::os::posix88::SIGINT;
     use libc::funcs::posix01::signal::signal;
 
     #[repr(C)]
@@ -36,8 +36,10 @@ mod platform {
         super::features::CVAR.notify_all();
     }
     #[inline]
-    pub unsafe fn set_os_handler(handler: fn(c_int)) {
-        signal(SIGINT, ::std::mem::transmute::<_, sighandler_t>(handler));
+    pub unsafe fn set_os_handler(sigs: Vec<c_int>, handler: fn(c_int)) {
+        for sig in sigs {
+            signal(sig, ::std::mem::transmute::<_, sighandler_t>(handler));
+        }
     }
 }
 #[cfg(windows)]
@@ -56,7 +58,7 @@ mod platform {
         true
     }
     #[inline]
-    pub unsafe fn set_os_handler(handler: fn(c_int) -> bool) {
+    pub unsafe fn set_os_handler(sigs: Vec<c_int>, handler: fn(c_int) -> bool) {
         SetConsoleCtrlHandler(::std::mem::transmute::<_, PHandlerRoutine>(handler), true);
     }
 }
@@ -70,9 +72,9 @@ impl CtrlC {
     /// use ctrlc::CtrlC;
     /// CtrlC::set_handler(|| println!("Hello world!"));
     /// ```
-    pub fn set_handler<F: Fn() -> () + 'static + Send>(user_handler: F) -> () {
+    pub fn set_handler<F: Fn() -> () + 'static + Send>(sigs: Vec<c_int>, user_handler: F) -> () {
         unsafe {
-            set_os_handler(handler);
+            set_os_handler(sigs, handler);
         }
         ::std::thread::spawn(move || {
             loop {

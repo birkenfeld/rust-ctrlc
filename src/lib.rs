@@ -83,4 +83,11 @@ impl CtrlC {
             }
         });
     }
+
+    pub fn get_waiter(sigs: Vec<c_int>) -> Box<Fn() -> ()> {
+        unsafe {
+            set_os_handler(sigs, handler);
+        }
+        return Box::new(|| { let _ = CVAR.wait(MUTEX.lock().unwrap()); });
+    }
 }

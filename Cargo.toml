@@ -1,13 +1,12 @@
 [package]
-
 name = "ctrlc"
-version = "0.1.1"
-authors = ["Antti Keränen <detegr@gmail.com>"]
+version = "0.2.0"
+authors = ["Antti Keränen <detegr@gmail.com>", "Georg Brandl <georg@python.org>"]
 license = "MIT"
 keywords = ["ctrlc", "signal", "SIGINT"]
-description = "Easy Ctrl-C handler for Rust projects"
-homepage = "https://github.com/Detegr/rust-ctrlc"
-repository = "https://github.com/Detegr/rust-ctrlc.git"
+description = "Easy interrupt signal handler for Rust projects"
+homepage = "https://github.com/birkenfeld/rust-ctrlc"
+repository = "https://github.com/birkenfeld/rust-ctrlc.git"
 
 [dependencies]
 libc = "0.1"
